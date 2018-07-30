@@ -1,0 +1,214 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: tss-strategy-practice
+# during dev, should point to your local machine.
+# Note this field is optional.
+host: localhost:3510
+# basePath prefixes all resource paths
+basePath: /api/v1
+#
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+securityDefinitions:
+  basicAuth:
+    type: basic
+security:
+  - basicAuth: []
+  
+paths:
+  /strategies:
+    x-swagger-router-controller: StrategyController
+    get:
+      tags: 
+        - strategy
+      summary: Get all strategies
+      description: Returns a list of strategies of the strategy owner
+      produces:
+        - application/json
+      operationId: getStrategies
+      responses:
+        "200":
+          description: A list of strategies
+          schema: 
+            type: array
+            items:
+              $ref: "#/definitions/Strategy"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      tags: 
+        - strategy
+      summary: Create a new Strategy
+      description: adds a new strategy owned by strategy owner
+      produces:
+        - application/json
+      operationId: postStartegy
+      parameters:
+        - name: strategy
+          description: the complete strategy object
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Strategy"
+      responses:
+        201:
+          description: OK - created successfully
+          schema: 
+            $ref: "#/definitions/Strategy"
+
+            
+  /strategies/{strategyId}/revisions:
+    x-swagger-router-controller: StrategyRevisionController
+    post:
+      tags: 
+        - strategy-revision
+      summary: Create a new Revision
+      description: adding a new revision to the strategy a new revision has a code to compile (the algorithm), will be given a new auto incremental number and has a list of events to listen to.
+      operationId: postStrategyRevision
+      parameters:
+        - name: strategyId
+          in: path
+          required: true
+          type: string
+        - name: revision
+          description: the new revision to post
+          in: body
+          required: true
+          schema: 
+            $ref: "#/definitions/StrategyRevision"
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: "#/definitions/EventResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /strategies/{strategyId}/revisions/{revisionId}:
+    x-swagger-router-controller: StrategyRevisionController
+    put:
+      tags: 
+        - strategy-revision
+      summary: Update a Revision
+      description: updating an existing revision to the strategy a revision has a code to compile which is mostly 
+        being updated or maybe a new event to be added or removed
+      operationId: putStrategyRevision
+      parameters:
+        - name: strategyId
+          in: path
+          type: string       
+          required: true
+        - name: revisionId
+          in: path
+          type: string
+          required: true
+        - name: revision
+          description: the revision to update
+          in: body
+          required: true
+          schema: 
+            $ref: "#/definitions/StrategyRevision"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/EventResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /strategies/{strategyId}/revisions/{revisionId}/backtest:
+    x-swagger-router-controller: StrategyRevisionController
+    patch:
+      tags: 
+        - strategy-revision
+      summary: Run a backtest
+      description: starts backtesting a strategy revision
+      operationId: backtest
+      consumes:
+        - application/octet-stream
+      parameters:
+        - name: strategyId
+          in: path
+          type: string       
+          required: true
+        - name: revisionId
+          in: path
+          type: string
+          required: true
+      responses:
+        "201":
+          description: Success
+          schema:
+            $ref: "#/definitions/EventResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /swagger:
+    x-swagger-pipe: swagger_raw
+definitions:
+  Strategy:
+    type: object
+    required:
+      - name
+      - description
+      - postedBy
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      postedBy:
+        type: string
+  StrategyRevision:
+    type: object
+    required:
+      - strategy
+      - code
+    properties:
+      id:
+        type: string
+        format: ObjectId
+        description: the id of the strategyRevision
+      strategy:
+        type: string
+        format: ObjectId
+        description: this is the ref key to the parent strategy object the owner strategy
+      number:
+        type: number
+        description: this is the new number of the revision, this is not meant to be posted by the caller
+      code:
+        type: string
+        description: the algorithm of the strategy in new revision this is a moduel in javascript
+      events:
+        type: "array"
+        items:
+          type: string
+    example: {"id":"1","strategy":"1","number":null,"code":"module.exports=1","events":["h4_closed"]}
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  EventResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

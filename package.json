@@ -1,0 +1,52 @@
+{
+  "name": "tss-strategy-practice",
+  "version": "1.0.0",
+  "description": "To practice the strategies, backtest them and create new revisions of them before promote them to live",
+  "main": "lib/index.js",
+  "author": "Aran Dekar",
+  "license": "MIT",
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "basic-auth": "^2.0.0",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "http-errors": "^1.6.3",
+    "mongoose": "^5.2.5",
+    "promise-breaker": "^4.1.4",
+    "request": "^2.87.0",
+    "require-from-string": "^2.0.2",
+    "swagger-node-runner": "^0.7.1",
+    "swagger-ui-dist": "^3.12.1",
+    "sway": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^23.4.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "eslint": "^5.2.0",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "jest": "^23.4.1",
+    "supertest": "^3.1.0"
+  },
+  "scripts": {
+    "build": "rm -rf lib && babel -s -d lib src --copy-files",
+    "test:lint": "eslint src test",
+    "lint": "eslint src test",
+    "start": "npm run build && node -r dotenv/config ./lib/index.js",
+    "test": "npm run test:lint && jest test --runInBand",
+    "coverage": "jest --collectCoverageFrom=src/**.js --collectCoverageFrom=!src/index.js --coverage test"
+  },
+  "jest": {
+    "testRegex": "\\.test\\.js$",
+    "testEnvironment": "node",
+    "globals": {
+      "request": {}
+    },
+    "verbose": true,
+    "transform": {
+      ".*": "babel-jest"
+    }
+  }
+}

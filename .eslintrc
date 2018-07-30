@@ -1,0 +1,16 @@
+{
+  "extends": "airbnb-base",
+  "env": {
+    "jest": true
+  },
+  "rules": {
+    "max-len": [
+      "error",
+      135
+    ],
+    "no-restricted-syntax": [
+      "off",
+      "ForOfStatement"
+    ]
+  }
+}
