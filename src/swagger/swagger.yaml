@@ -26,7 +26,7 @@ security:
   
 paths:
   /strategies:
-    x-swagger-router-controller: StrategyController
+    x-swagger-router-controller: strategy_controller
     get:
       tags: 
         - strategy
@@ -69,7 +69,7 @@ paths:
 
             
   /strategies/{strategyId}/revisions:
-    x-swagger-router-controller: StrategyRevisionController
+    x-swagger-router-controller: strategy_revision_controller
     post:
       tags: 
         - strategy-revision
@@ -97,7 +97,7 @@ paths:
           schema:
             $ref: "#/definitions/ErrorResponse"
   /strategies/{strategyId}/revisions/{revisionId}:
-    x-swagger-router-controller: StrategyRevisionController
+    x-swagger-router-controller: strategy_revision_controller
     put:
       tags: 
         - strategy-revision
@@ -131,7 +131,7 @@ paths:
             $ref: "#/definitions/ErrorResponse"
 
   /strategies/{strategyId}/revisions/{revisionId}/backtest:
-    x-swagger-router-controller: StrategyRevisionController
+    x-swagger-router-controller: strategy_revision_controller
     patch:
       tags: 
         - strategy-revision

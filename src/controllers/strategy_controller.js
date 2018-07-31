@@ -1,5 +1,5 @@
 
-import StrategyService from '../services/StrategyService';
+import StrategyService from '../services/strategy_service';
 
 export async function getStrategies(req, res) {
   try {

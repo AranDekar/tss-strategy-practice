@@ -1,6 +1,6 @@
 
-import StrategyRevisionService from '../services/StrategyRevisionService';
-import BacktestService from '../services/BacktestService';
+import StrategyRevisionService from '../services/strategy_revision_service';
+import BacktestService from '../services/backtest_service';
 
 export async function postRevision(req, res) {
   const revision = req.swagger.params.body.value;
@@ -8,7 +8,7 @@ export async function postRevision(req, res) {
   try {
     if (revision.strategy !== strategyId) return res.status(400).send({ message: 'strategyId mismatch' });
 
-    const service = new StrategyRevisionService({ ...revision });
+    const service = new StrategyRevisionService(...revision);
     const data = await service.create();
     return res.status(200).send(data);
   } catch (err) {
@@ -25,7 +25,7 @@ export async function putRevision(req, res) {
       return res.status(400).send({ message: 'strategyId/revisionId mismatch' });
     }
 
-    const service = new StrategyRevisionService({ ...revision });
+    const service = new StrategyRevisionService(...revision);
     const data = await service.updateRevision();
     return res.status(200).send(data);
   } catch (err) {

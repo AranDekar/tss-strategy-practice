@@ -1,9 +1,9 @@
 import requireFromString from 'require-from-string';
 import request from 'request';
-import StrategyEvent from '../schemas/StrategyEventSchema';
-import StrategyRevision from '../schemas/StrategyRevisionSchema';
-import StrategyReport from '../schemas/StrategyReportSchema';
-import StrategyReportSummary from '../schemas/StrategyReportSummarySchema';
+import StrategyEvent from '../schemas/strategy_event_schema';
+import StrategyRevision from '../schemas/strategy_revision_schema';
+import StrategyReport from '../schemas/strategy_report_schema';
+import StrategyReportSummary from '../schemas/strategy_report_summary_schema';
 
 class BacktestService {
   constructor({ revisionId }) {
@@ -230,9 +230,9 @@ class BacktestService {
         isDispatched: false,
         instrument,
         payload: {
-          ...this.strategyPayload,
           bid: instrumentEvent.bidPrice,
           ask: instrumentEvent.askPrice,
+          ...this.strategyPayload,
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),

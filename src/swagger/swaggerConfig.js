@@ -30,20 +30,20 @@ const config = {
     },
     _swagger_security: {
       name: 'swagger_security',
-      securityHandlersModule: 'swagger/fittings/BasicAuth',
+      securityHandlersModule: 'swagger/fittings/security_handlers',
     },
 
-    Cors: {
-      name: 'Cors',
+    _swagger_cors: {
+      name: 'swagger_cors',
       origin: /^http:\/\/localhost:3000$/,
     },
 
     swagger_controllers: [
       { onError: 'json_error_handler' },
-      'Cors',
+      '_swagger_cors',
       'swagger_params_parser',
-      'CustomValidators',
-      'BasicAuth',
+      'custom_validators',
+      '_swagger_security',
       '_swagger_validate',
       'express_compatibility',
       '_router',

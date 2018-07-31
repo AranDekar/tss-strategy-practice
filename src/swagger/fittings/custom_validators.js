@@ -75,7 +75,7 @@ function validate(name, definition, value) {
   return validateFormat(name, definition, value);
 }
 
-export default function CustomValidators(fittingDef, bagpipes) { // eslint-disable-line
+export default function custom_validators(fittingDef, bagpipes) { // eslint-disable-line
   return function myFitting(context, cb) {
     const errors = [];
     const { input } = context.input;
