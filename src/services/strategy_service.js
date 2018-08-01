@@ -1,4 +1,4 @@
-import Strategy from '../schemas/StrategySchema';
+import Strategy from '../schemas/strategy_schema';
 
 class StrategyService {
   constructor({ id, name, description, createdTime, postedBy } = {}) { // eslint-disable-line

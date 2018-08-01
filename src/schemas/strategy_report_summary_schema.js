@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const { Schema } = mongoose.Schema;
+const { Schema } = mongoose;
 const strategyReportSummarySchema = new Schema({
-  strategyRevision: { type: Schema.Types.ObjectId, ref: 'StrategyRevisions' },
+  strategyRevision: { type: Schema.Types.ObjectId, ref: 'strategy_revisions' },
   instrument: { type: String, required: 'instrumentId is required' },
   total: Number,
   maxProfit: Number,
@@ -19,6 +19,6 @@ const strategyReportSummarySchema = new Schema({
   }],
 });
 
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false });
-const StrategyReportSummary = mongoose.model('StrategyReportSummary', strategyReportSummarySchema);
+mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
+const StrategyReportSummary = mongoose.model('stategy_report_summaries', strategyReportSummarySchema);
 export default StrategyReportSummary;

@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import requireFromString from 'require-from-string';
 import request from 'request';
 import StrategyEvent from '../schemas/strategy_event_schema';
@@ -22,7 +24,9 @@ class BacktestService {
       throw new Error('revision not found!');
     }
     let numberOfEvents = 0;
-    const algorithm = requireFromString(this.revision.code);
+    const file = path.join(__dirname, `/pool/${this.revision.code}`);
+    const code = fs.readFileSync(file, 'utf8');
+    const algorithm = requireFromString(code, file);
     if (!algorithm) {
       throw new Error('code of the revision cannot be executed!');
     }

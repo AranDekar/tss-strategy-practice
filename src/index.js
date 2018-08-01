@@ -5,7 +5,7 @@ import makeServer from './server';
 
 makeServer()
   .then((app) => {
-    const port = process.env.PORT || 3500;
+    const port = process.env.PORT || 3510;
     app.listen(port);
     console.log(`🌎 Listening on port ${port}`);
   })

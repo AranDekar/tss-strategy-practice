@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const { Schema } = mongoose.Schema;
+const { Schema } = mongoose;
 const strategyRevisionSchema = new Schema({
-  strategy: { type: Schema.Types.ObjectId, ref: 'Strategies' },
+  strategy: { type: Schema.Types.ObjectId, ref: 'strategies' },
   modifiedTime: { type: Date, default: Date.now },
   code: String,
   events: {
@@ -63,6 +63,6 @@ const strategyRevisionSchema = new Schema({
     ],
   },
 });
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false });
-const StrategyRevision = mongoose.model('StrategyRevision', strategyRevisionSchema);
+mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
+const StrategyRevision = mongoose.model('strategy_revisions', strategyRevisionSchema);
 export default StrategyRevision;

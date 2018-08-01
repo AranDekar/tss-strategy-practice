@@ -11,9 +11,9 @@ export async function getStrategies(req, res) {
 }
 
 export async function postStrategy(req, res) {
-  const strategy = req.swagger.params.body.value;
-  const service = new StrategyService(strategy);
   try {
+    const strategy = req.swagger.params.body.value;
+    const service = new StrategyService(strategy);
     const model = await service.create();
     return res.status(201).json(model);
   } catch (err) {

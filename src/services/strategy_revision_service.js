@@ -1,5 +1,5 @@
-import Strategy from '../schemas/StrategySchema';
-import StrategyRevision from '../schemas/StrategyRevisionSchema';
+import Strategy from '../schemas/strategy_schema';
+import StrategyRevision from '../schemas/strategy_revision_schema';
 
 class StrategyRevisionService {
   constructor({ id, code, events, strategy } = {}) { // eslint-disable-line
@@ -23,13 +23,18 @@ class StrategyRevisionService {
     return strategy.save();
   }
 
-  async updateRevision() {
+  /**
+  * Update the code and events of a revision
+  * @param {string} code - The code to update - either file name or a module
+  * @return {array} Array of events.
+  */
+  async update(code, events) {
     const revision = await StrategyRevision.findById(this.id).exec();
     if (!revision) {
       throw new Error('revision not found!');
     }
-    revision.code = this.code;
-    revision.events = this.events;
+    revision.code = code;
+    revision.events = events;
     return revision.save();
   }
 }

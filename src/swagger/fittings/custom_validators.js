@@ -78,12 +78,11 @@ function validate(name, definition, value) {
 export default function custom_validators(fittingDef, bagpipes) { // eslint-disable-line
   return function myFitting(context, cb) {
     const errors = [];
-    const { input } = context.input;
+    const { input } = context;
 
     for (const param of Object.keys(input)) {
-      const { parameterObject } = input[param];
+      const { parameterObject, value } = input[param];
       const definition = parameterObject.definitionFullyResolved || parameterObject.definition;
-      const { value } = input[param].value;
       errors.push(...validate(param, definition, value));
     }
 

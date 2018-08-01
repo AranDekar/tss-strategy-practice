@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const { Schema } = mongoose.Schema;
+const { Schema } = mongoose;
 const strategyEventSchema = new Schema({
-  strategyRevision: { type: Schema.Types.ObjectId, ref: 'StrategyRevisions' },
+  strategyRevision: { type: Schema.Types.ObjectId, ref: 'strategy_revisions' },
   instrument: { type: String, required: 'instrumentId is required' },
   isDispatched: { type: Boolean, default: false },
   candleTime: { type: Date },
@@ -16,6 +16,6 @@ strategyEventSchema.statics.findUndispatchedEvents = function findUndispatchedEv
   return this.find({ isDispatched: false }).sort({ time: 1 });
 };
 
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false });
-const StrategyEvent = mongoose.model('StrategyEvent', strategyEventSchema);
+mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
+const StrategyEvent = mongoose.model('strategy_events', strategyEventSchema);
 export default StrategyEvent;

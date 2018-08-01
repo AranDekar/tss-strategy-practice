@@ -11,7 +11,6 @@ basePath: /api/v1
 schemes:
   # tip: remove http to make production-grade
   - http
-  - https
 # format of bodies a client can send (Content-Type)
 consumes:
   - application/json
@@ -75,7 +74,7 @@ paths:
         - strategy-revision
       summary: Create a new Revision
       description: adding a new revision to the strategy a new revision has a code to compile (the algorithm), will be given a new auto incremental number and has a list of events to listen to.
-      operationId: postStrategyRevision
+      operationId: postRevision
       parameters:
         - name: strategyId
           in: path
@@ -91,7 +90,7 @@ paths:
         "201":
           description: Success
           schema:
-            $ref: "#/definitions/EventResponse"
+            $ref: "#/definitions/StrategyRevision"
         default:
           description: Error
           schema:
@@ -104,7 +103,7 @@ paths:
       summary: Update a Revision
       description: updating an existing revision to the strategy a revision has a code to compile which is mostly 
         being updated or maybe a new event to be added or removed
-      operationId: putStrategyRevision
+      operationId: putRevision
       parameters:
         - name: strategyId
           in: path
@@ -124,7 +123,7 @@ paths:
         "200":
           description: Success
           schema:
-            $ref: "#/definitions/EventResponse"
+            $ref: "#/definitions/StrategyRevision"
         default:
           description: Error
           schema:
@@ -132,7 +131,7 @@ paths:
 
   /strategies/{strategyId}/revisions/{revisionId}/backtest:
     x-swagger-router-controller: strategy_revision_controller
-    patch:
+    post:
       tags: 
         - strategy-revision
       summary: Run a backtest
@@ -168,18 +167,44 @@ definitions:
       - name
       - description
       - postedBy
+      - strategyRevisions
     properties:
+      _id:
+        type: string
+        format: ObjectId
+      isActive:
+        type: boolean
+      strategyRevisions:
+        type: array
+        items: 
+          type: string
+          format: ObjectId
       name:
         type: string
       description:
         type: string
       postedBy:
         type: string
+      createdTime:
+        type: string
+        format: datetime
+    example:  {
+        "isActive": true,
+        "strategyRevisions": [
+            "5b235fe813c672001d122e9b"
+        ],
+        "_id": "5b235dc32a5bb3001dcb5650",
+        "name": "sma",
+        "description": "sma testing in h4",
+        "postedBy": "5b1f555491c055001d9d10ff",
+        "createdTime": "2018-06-15T06:33:39.186Z"
+    }
   StrategyRevision:
     type: object
     required:
       - strategy
       - code
+      - events
     properties:
       id:
         type: string
