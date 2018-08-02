@@ -63,6 +63,7 @@ const strategyRevisionSchema = new Schema({
     ],
   },
 });
+
 mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
 const StrategyRevision = mongoose.model('strategy_revisions', strategyRevisionSchema);
 export default StrategyRevision;

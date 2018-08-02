@@ -1,1 +1,36 @@
-db.strategy_revisions.find()
+db.strategy_report_summaries.count()
+db.strategy_events.count()
+
+db.strategy_report_summaries.find(
+{"strategyRevision":{$oid:'5b235fe813c672001d122e9b'}, 'instrument':'AUD_USD',
+'year':2014})
+
+db.strategy_report_summaries.aggregate([
+  { $match:{"strategyRevision":ObjectId("5b235fe813c672001d122e9b"), "instrument": "AUD_USD" } },
+  { $project : { strategyRevision:1, instrument:1, year:1, total : 1,maxProfit:1, maxLoss:1 } } 
+])
+
+
+db.strategy_reports.aggregate([
+{
+  $match:{
+      timeIn:{
+      $gte: ISODate("2018-01-01T00:00:00.000Z")
+          
+     }
+  }
+ },{
+  $group: {
+    _id: '$strategyId', 
+    total: {
+      $sum: "$pips"
+    },
+    maxLoss:{
+        $min: "$pips"
+    },
+    maxProfit:{
+        $max: "$pips"
+    }
+  }
+  
+}])

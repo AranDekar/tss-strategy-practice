@@ -97,6 +97,30 @@ paths:
             $ref: "#/definitions/ErrorResponse"
   /strategies/{strategyId}/revisions/{revisionId}:
     x-swagger-router-controller: strategy_revision_controller
+    get:
+      tags: 
+        - strategy-revision
+      summary: Get a Revision
+      description: Get an existing revision with details
+      operationId: getRevision
+      parameters:
+        - name: strategyId
+          in: path
+          type: string       
+          required: true
+        - name: revisionId
+          in: path
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/StrategyRevision"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
     put:
       tags: 
         - strategy-revision

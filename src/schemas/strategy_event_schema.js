@@ -15,7 +15,6 @@ strategyEventSchema.index({ time: 1 }); // schema level ascending index on candl
 strategyEventSchema.statics.findUndispatchedEvents = function findUndispatchedEvents() {
   return this.find({ isDispatched: false }).sort({ time: 1 });
 };
-
 mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
 const StrategyEvent = mongoose.model('strategy_events', strategyEventSchema);
 export default StrategyEvent;

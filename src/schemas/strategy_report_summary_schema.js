@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+
 const { Schema } = mongoose;
 const strategyReportSummarySchema = new Schema({
   strategyRevision: { type: Schema.Types.ObjectId, ref: 'strategy_revisions' },
@@ -20,5 +21,5 @@ const strategyReportSummarySchema = new Schema({
 });
 
 mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
-const StrategyReportSummary = mongoose.model('stategy_report_summaries', strategyReportSummarySchema);
+const StrategyReportSummary = mongoose.model('strategy_report_summaries', strategyReportSummarySchema);
 export default StrategyReportSummary;

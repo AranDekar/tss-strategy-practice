@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import requireFromString from 'require-from-string';
-import request from 'request';
+import request from 'request-promise';
 import StrategyEvent from '../schemas/strategy_event_schema';
 import StrategyRevision from '../schemas/strategy_revision_schema';
 import StrategyReport from '../schemas/strategy_report_schema';
@@ -14,7 +14,7 @@ class BacktestService {
     this.events = [];
     this.reports = [];
     this.annualReps = [];
-    this.strategyPayload = {};
+    this.snapshot = {};
     this.strategyStatus = undefined;
   }
 
@@ -24,48 +24,52 @@ class BacktestService {
       throw new Error('revision not found!');
     }
     let numberOfEvents = 0;
+    const summary = [];
     const file = path.join(__dirname, `/pool/${this.revision.code}`);
     const code = fs.readFileSync(file, 'utf8');
-    const algorithm = requireFromString(code, file);
-    if (!algorithm) {
+    const func = requireFromString(code, file);
+    if (!func) {
       throw new Error('code of the revision cannot be executed!');
     }
     const instruments = { AUD_USD: 'AUD_USD', GBP_USD: 'GBP_USD', EUR_USD: 'EUR_USD' };
-    for (const instrument of instruments) {
-      if (instrument) {
-        this.snapshots = [];
-        this.events = [];
-        this.reports = [];
-        this.strategyPayload = {};
-        this.strategyStatus = undefined;
-        await this.clearOutDb(instrument);// eslint-disable-line no-await-in-loop
+    for (const [value] of Object.entries(instruments)) {
+      const instrument = value;
+      this.snapshots = [];
+      this.events = [];
+      this.reports = [];
+      this.snapshot = {};
+      this.annualReps = [];
+      this.strategyStatus = undefined;
+      await this.clearOutDb(instrument);// eslint-disable-line no-await-in-loop
 
-        let stillInLoop = true;
-        let candleTime = new Date('1900-01-01');
-        do {
-          /* eslint-disable no-await-in-loop */
-          const events = await this.getInstrumentEvents(instrument, candleTime, this.revision.strategy.events.map(x => x));
-          /* eslint-enable no-await-in-loop */
-          numberOfEvents += events.length;
-          for (const event of events) {
-            await this.process(algorithm, instrument, this.revision, event);// eslint-disable-line no-await-in-loop
+      let stillInLoop = true;
+      let candleTime = new Date('1900-01-01').toISOString();
+      do {
+        /* eslint-disable no-await-in-loop */
+        const events = await BacktestService.getInstrumentEvents(instrument, candleTime, this.revision.events.map(x => x));
+        /* eslint-enable no-await-in-loop */
+        for (const event of events) {
+          await this.process(func, instrument, event);// eslint-disable-line no-await-in-loop
 
-            candleTime = event.candleTime; // eslint-disable-line prefer-destructuring
-          }
-          stillInLoop = events.length !== 0;
-        } while (stillInLoop);
-        this.produceReport(this.revision, instrument);
-        this.produceReportSummary(this.revision, instrument);
-        await this.saveIntoDb(); // eslint-disable-line
-      }
+          candleTime = event.candleTime; // eslint-disable-line prefer-destructuring
+        }
+        stillInLoop = events.length !== 0;
+      } while (stillInLoop);
+      this.produceReport(this.revision, instrument);
+      const result = this.produceReportSummary(this.revision, instrument);
+      summary.push(result);
+      await this.saveIntoDb(); // eslint-disable-line
+      numberOfEvents += this.events.length;
     }
-    return numberOfEvents;
+    return { numberOfEventsGenrated: numberOfEvents, totalEarn: summary };
   }
 
-  async clearOutDb(instrument) {
-    await StrategyEvent.deleteMany({ strategyRevision: this.revision, instrument }).exec();
-    await StrategyReport.deleteMany({ strategyRevision: this.revision, instrument }).exec();
-    await StrategyReportSummary.deleteMany({ strategyRevision: this.revision, instrument }).exec();
+  async clearOutDb(instr) {
+    await StrategyEvent.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
+    await StrategyReport.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
+    await StrategyReportSummary.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
+    const r = 'dsds';
+    return r;
   }
 
   async saveIntoDb() {
@@ -74,11 +78,12 @@ class BacktestService {
     await StrategyReportSummary.insertMany(this.annualReps);
   }
 
-  produceReportSummary(strategyRevision, instrumnet) {
+  produceReportSummary(strategyRevision, instrument) {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const activeReports = this.reports.filter(a => a.timeOut !== undefined && a.timeOut !== null);
     const minYear = activeReports[0].timeOut.getFullYear();
-
+    let totalEarn = 0;
+    const yearlyReport = [];
     for (let m = minYear; m <= new Date().getFullYear(); m += 1) {
       let annualTotal = 0;
       let annualMaxProfit = 0;
@@ -160,7 +165,7 @@ class BacktestService {
 
       this.annualReps.push({
         strategyRevision: strategyRevision.id,
-        instrument: instrumnet,
+        instrument,
         year: m,
         total: annualTotal,
         maxProfit: annualMaxProfit,
@@ -169,7 +174,10 @@ class BacktestService {
         quarterly: [q1, q2, q3, q4],
         halfYearly: [hy1, hy2],
       });
+      yearlyReport.push({ year: m, earn: annualTotal });
+      totalEarn += annualTotal;
     }
+    return { totalEarn, instrument, yearlyReport };
   }
 
   produceReport(strategyRevision, instrumnet) {
@@ -202,33 +210,36 @@ class BacktestService {
   }
 
   static async getInstrumentEvents(instrument, candleTime, events) {
-    request
-      .get(`${process.node.HTTP_INSTRUMENT}/${instrument}/events?candleTime=${candleTime}&events=${events.join(',')}`,
-        { json: true })
-      .auth(process.node.API_KEY, process.node.API_SECRET)
-      .on('response', (response) => {
-        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-          return Promise.resolve({ response, body: response.body });
-        }
-        return Promise.reject(new Error('status code NOK'));
-      })
-      .on('error', error => Promise.reject(error));
+    const options = {
+      method: 'GET',
+      uri: `${process.env.HTTP_INSTRUMENT}/${instrument}/events?candleTime=${candleTime}&events=${events.join(',')}`,
+      qs: {},
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${process.env.API_KEY}:${process.env.API_SECRET}`).toString('base64')}`,
+        'api-key': '1234',
+      },
+      json: true, // Automatically parses the JSON string in the response
+    };
+    return request(options)
+      .then(response => Promise.resolve(response))
+      .catch(error => Promise.reject(error));
   }
 
-  async process(strategyProcessFunc, instrument, strategyRevision, instrumentEvent) {
+  async process(func, instrument, instrumentEvent) {
     try {
-      strategyProcessFunc.execute(this.strategyPayload, instrumentEvent,
-        () => this.runExitCommand(instrument, instrumentEvent, strategyRevision),
-        () => this.runBuyCommand(instrument, instrumentEvent, strategyRevision),
-        () => this.runSellCommand(instrument, instrumentEvent, strategyRevision));
+      func(this.snapshot, instrumentEvent,
+        newSnapshot => this.runExitCommand(instrument, instrumentEvent, newSnapshot),
+        newSnapshot => this.runBuyCommand(instrument, instrumentEvent, newSnapshot),
+        newSnapshot => this.runSellCommand(instrument, instrumentEvent, newSnapshot));
     } catch (error) {
       throw error;
     }
   }
 
-  runSellCommand(instrument, instrumentEvent, strategyRevision) {
+  runSellCommand(instrument, instrumentEvent, newSnapshot) {
+    this.snapshot = newSnapshot;
     if (this.strategyStatus !== 'in_sell') {
-      this.runExitCommand(instrument, instrumentEvent, strategyRevision);
+      this.runExitCommand(instrument, instrumentEvent, newSnapshot);
       const eventItem = {
         event: 'in_sell',
         isDispatched: false,
@@ -236,52 +247,54 @@ class BacktestService {
         payload: {
           bid: instrumentEvent.bidPrice,
           ask: instrumentEvent.askPrice,
-          ...this.strategyPayload,
+          ...this.snapshot,
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: strategyRevision.id,
+        strategyRevision: this.revisionId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'in_sell';
     }
   }
 
-  runBuyCommand(instrument, instrumentEvent, strategyRevision) {
+  runBuyCommand(instrument, instrumentEvent, newSnapshot) {
+    this.snapshot = newSnapshot;
     if (this.strategyStatus !== 'in_buy') {
-      this.runExitCommand(instrument, instrumentEvent, strategyRevision);
+      this.runExitCommand(instrument, instrumentEvent, newSnapshot);
       const eventItem = {
         event: 'in_buy',
         instrument,
         isDispatched: false,
         payload: {
-          ...this.strategyPayload,
+          ...this.snapshot,
           bid: instrumentEvent.bidPrice,
           ask: instrumentEvent.askPrice,
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: strategyRevision.id,
+        strategyRevision: this.revisionId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'in_buy';
     }
   }
 
-  runExitCommand(instrument, instrumentEvent, strategyRevision) {
+  runExitCommand(instrument, instrumentEvent, newSnapshot) {
+    this.snapshot = newSnapshot;
     if (this.strategyStatus !== 'exited') {
       const eventItem = {
         event: 'exited',
         instrument,
         isDispatched: false,
         payload: {
-          ...this.strategyPayload,
+          ...this.snapshot,
           bid: instrumentEvent.bidPrice,
           ask: instrumentEvent.askPrice,
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: strategyRevision.id,
+        strategyRevision: this.revisionId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'exited';

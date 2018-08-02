@@ -37,6 +37,14 @@ class StrategyRevisionService {
     revision.events = events;
     return revision.save();
   }
+
+
+  /**
+  * Get the revision by id
+  */
+  async getById() {
+    return StrategyRevision.findById(this.id).exec();
+  }
 }
 
 export default StrategyRevisionService;
