@@ -11,6 +11,5 @@ const strategySchema = new Schema({
   strategyRevisions: [{ type: Schema.Types.ObjectId, ref: 'strategy_revisions' }],
 });
 
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
 const Strategy = mongoose.model('strategies', strategySchema);
 export default Strategy;

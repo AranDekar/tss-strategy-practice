@@ -20,6 +20,5 @@ const strategyReportSummarySchema = new Schema({
   }],
 });
 
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
 const StrategyReportSummary = mongoose.model('strategy_report_summaries', strategyReportSummarySchema);
 export default StrategyReportSummary;

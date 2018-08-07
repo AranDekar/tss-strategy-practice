@@ -2,10 +2,26 @@ import express from 'express';
 import pb from 'promise-breaker';
 import { absolutePath as pathToSwaggerUi } from 'swagger-ui-dist';
 
+import mongoose from 'mongoose';
 import swaggerNodeRunner from 'swagger-node-runner';
 import createSwaggerConfig from './swagger/swaggerConfig';
 
 const PRODUCTION_HOST = 'myproductionserver.com';
+
+// Set native promises as mongoose promise
+mongoose.Promise = global.Promise;
+
+// MongoDB Connection
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true },
+    (error) => {
+      if (error) {
+        console.error('Please make sure Mongodb is installed and running!'); // eslint-disable-line no-console
+        throw error;
+      }
+    });
+}
+
 
 async function createSwaggerMiddleware(app) {
   // Stop swaggerNodeRunner from complaining about the lack of a config file.

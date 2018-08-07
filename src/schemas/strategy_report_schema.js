@@ -13,6 +13,5 @@ const strategyReportSchema = new Schema({
   payload: { type: Schema.Types.Mixed },
 });
 
-mongoose.connect(process.env.MONGO_DB, { autoIndex: false, useNewUrlParser: true });
 const StrategyReport = mongoose.model('strategy_reports', strategyReportSchema);
 export default StrategyReport;
