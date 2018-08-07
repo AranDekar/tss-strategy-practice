@@ -2,8 +2,16 @@
   {
     "isActive": true,
     "strategyRevisions": [],
-    "name": "test - sma",
-    "description": "sma testing in h4",
+    "name": "sma",
+    "description": "sma in h4",
+    "postedBy": "5b1f555491c055001d9d10ff",
+    "createdTime": "2018-06-15T06:33:39.186Z"
+  },
+  {
+    "isActive": true,
+    "strategyRevisions": [],
+    "name": "three line break",
+    "description": "three line break in h4",
     "postedBy": "5b1f555491c055001d9d10ff",
     "createdTime": "2018-06-15T06:33:39.186Z"
   }

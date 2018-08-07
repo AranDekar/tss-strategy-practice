@@ -6,6 +6,7 @@ import { Mockgoose } from 'mockgoose';
 import makeServer from '../src/server';
 import Strategy from '../src/schemas/strategy_schema';
 import strategies from './fixtures/strategies';
+import badStrategies from './fixtures/bad_strategies';
 
 const mockgoose = new Mockgoose(mongoose);
 config({ path: './test/.env' });
@@ -34,8 +35,8 @@ beforeAll(async () => {
   basicAuth = `Basic ${Buffer.from(`${process.env.API_KEY}:${process.env.API_SECRET}`).toString('base64')}`;
 });
 
-it('GET - insert in db and return from strategy api', async () => {
-  await Strategy.insertMany(strategies[0]).catch(() => 'Unable to create posts');
+it('GET - return one rec', async () => {
+  await Strategy.insertMany(strategies[0]);
   const res = await request(app)
     .get('/api/v1/strategies')
     .set('Authorization', basicAuth);
@@ -43,6 +44,70 @@ it('GET - insert in db and return from strategy api', async () => {
   expect(res.body.length).toBe(1);
   expect(res.body[0]).toMatchObject(strategies[0]);
 });
+
+it('GET - return empty collection', async () => {
+  await request(app)
+    .get('/api/v1/strategies')
+    .set('Authorization', basicAuth)
+    .expect(200, []);
+});
+
+it('GET - return two recs', async () => {
+  await Strategy.insertMany(strategies);
+  const res = await request(app)
+    .get('/api/v1/strategies')
+    .set('Authorization', basicAuth);
+  expect(200);
+  expect(res.body.length).toBe(2);
+  expect(res.body[0]).toMatchObject(strategies[0]);
+  expect(res.body[1]).toMatchObject(strategies[1]);
+});
+
+it('AUTH(GET) - no auth to return 401', async () => {
+  await request(app)
+    .get('/api/v1/strategies')
+    .expect(401, '{"message":"Please login to view this page.","code":"server_error"}');
+});
+
+it('AUTH(GET) - wrong auth to return 401', async () => {
+  await request(app)
+    .get('/api/v1/strategies')
+    .set('Authorization', 'Basic wWrronGToken1sP@ss3d')
+    .expect(401, '{"message":"Please login to view this page.","code":"server_error"}');
+});
+
+it('POST - Ok', async () => {
+  const res = await request(app)
+    .post('/api/v1/strategies')
+    .send(strategies[0])
+    .type('application/json')
+    .set('Authorization', basicAuth)
+    .expect(201);
+
+  expect(res.body).toMatchObject(strategies[0]);
+  const rec = await Strategy.findOne().exec();
+  expect(JSON.toString(res.body)).toBe(JSON.toString(rec));
+});
+
+
+it('POST - Nok strategy revision required', async () => {
+  await request(app)
+    .post('/api/v1/strategies')
+    .send(badStrategies[0])
+    .type('application/json')
+    .set('Authorization', basicAuth)
+    .expect(400, '{"message":"Validation errors","errors":[{"code":"INVALID_REQUEST_PARAMETER","errors":[{"code":"OBJECT_MISSING_REQUIRED_PROPERTY","params":["strategyRevisions"],"message":"Missing required property: strategyRevisions","path":[]}],"in":"body","message":"Invalid parameter (strategy): Value failed JSON Schema validation","name":"strategy","path":["paths","/strategies","post","parameters","0"]}]}');
+});
+
+it('POST - Nok name required', async () => {
+  await request(app)
+    .post('/api/v1/strategies')
+    .send(badStrategies[1])
+    .type('application/json')
+    .set('Authorization', basicAuth)
+    .expect(400, '{"message":"Validation errors","errors":[{"code":"INVALID_REQUEST_PARAMETER","errors":[{"code":"OBJECT_MISSING_REQUIRED_PROPERTY","params":["name"],"message":"Missing required property: name","path":[]}],"in":"body","message":"Invalid parameter (strategy): Value failed JSON Schema validation","name":"strategy","path":["paths","/strategies","post","parameters","0"]}]}');
+});
+
 
 // it('should GET 400', async () => {
 //   await request(app)

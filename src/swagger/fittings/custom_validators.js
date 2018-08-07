@@ -65,16 +65,18 @@ function validateObject(name, definition, properties, value) {
 }
 
 function validate(name, definition, value) {
-  if (definition.type === 'array') {
-    return validateArray(name, definition, value);
-  } if (definition.schema) {
-    return validateObject(name, definition, definition.schema.properties, value);
-  } if (definition.type === 'object') {
-    return validateObject(name, definition, definition.properties, value);
+  if (value) {
+    if (definition.type === 'array') {
+      return validateArray(name, definition, value);
+    } if (definition.schema) {
+      return validateObject(name, definition, definition.schema.properties, value);
+    } if (definition.type === 'object') {
+      return validateObject(name, definition, definition.properties, value);
+    }
+    return validateFormat(name, definition, value);
   }
-  return validateFormat(name, definition, value);
+  return [];
 }
-
 export default function custom_validators(fittingDef, bagpipes) { // eslint-disable-line
   return function myFitting(context, cb) {
     const errors = [];

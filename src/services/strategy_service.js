@@ -9,11 +9,11 @@ class StrategyService {
     this.postedBy = postedBy;
   }
 
-  async create() {
-    if (!this.postedBy) {
+  static async create(strategy) {
+    if (!strategy.postedBy) {
       throw new Error('❌ strategy is not properly sent');
     }
-    const model = new Strategy(...this);
+    const model = new Strategy(strategy);
     return model.save();
   }
 

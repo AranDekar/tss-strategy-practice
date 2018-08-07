@@ -52,7 +52,7 @@ paths:
       description: adds a new strategy owned by strategy owner
       produces:
         - application/json
-      operationId: postStartegy
+      operationId: postStrategy
       parameters:
         - name: strategy
           description: the complete strategy object
@@ -65,7 +65,10 @@ paths:
           description: OK - created successfully
           schema: 
             $ref: "#/definitions/Strategy"
-
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
             
   /strategies/{strategyId}/revisions:
     x-swagger-router-controller: strategy_revision_controller

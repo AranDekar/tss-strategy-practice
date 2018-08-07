@@ -50,6 +50,7 @@ export async function getRevision(req, res) {
 
 export async function backtest(req, res) {
   try {
+    debugger; //eslint-disable-line
     const revisionId = req.swagger.params.revisionId.value;
     const service = new BacktestService({ revisionId });
     const summary = await service.backtest();
