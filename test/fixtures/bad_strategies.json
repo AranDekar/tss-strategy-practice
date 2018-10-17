@@ -4,18 +4,23 @@
     "name": "sma",
     "description": "sma in h4",
     "postedBy": "5b1f555491c055001d9d10ff",
-    "createdTime": "2018-06-15T06:33:39.186Z"
+    "createdTime": "2018-06-15T06:33:39.186Z",
+    "events": [
+      "h4_closed"
+    ]
   },
   {
     "isActive": true,
-    "strategyRevisions": [],
     "description": "three line break in h4",
     "postedBy": "5b1f555491c055001d9d10ff",
-    "createdTime": "2018-06-15T06:33:39.186Z"
+    "createdTime": "2018-06-15T06:33:39.186Z",
+    "code": "the code",
+    "events": [
+      "h4_closed"
+    ]
   },
   {
     "isActive": true,
-    "strategyRevisions": [],
     "name": "sma",
     "description": "three line break in h4",
     "postedBy": "",
@@ -23,10 +28,12 @@
   },
   {
     "isActive": true,
-    "strategyRevisions": [],
     "name": "test",
     "description": "three line break in h4",
-    "postedBy": "",
-    "createdTime": "2018-06-15T06:33:39.186Z"
+    "createdTime": "2018-06-15T06:33:39.186Z",
+    "code": "the code",
+    "events": [
+      "h4_closed"
+    ]
   }
 ]

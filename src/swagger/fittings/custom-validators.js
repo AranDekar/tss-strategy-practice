@@ -65,7 +65,7 @@ function validateObject(name, definition, properties, value) {
 }
 
 function validate(name, definition, value) {
-  if (value) {
+  if (value !== undefined) {
     if (definition.type === 'array') {
       return validateArray(name, definition, value);
     } if (definition.schema) {

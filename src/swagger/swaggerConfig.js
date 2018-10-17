@@ -30,11 +30,11 @@ const config = {
     },
     _swagger_security: {
       name: 'swagger_security',
-      securityHandlersModule: 'swagger/fittings/security_handlers',
+      securityHandlersModule: 'swagger/fittings/security-handlers',
     },
 
     _swagger_cors: {
-      name: 'swagger_cors',
+      name: 'swagger-cors',
       origin: /^http:\/\/localhost:3000$/,
     },
 
@@ -42,7 +42,7 @@ const config = {
       { onError: 'json_error_handler' },
       '_swagger_cors',
       'swagger_params_parser',
-      'custom_validators',
+      'custom-validators',
       '_swagger_security',
       '_swagger_validate',
       'express_compatibility',

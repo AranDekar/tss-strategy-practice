@@ -1,6 +1,6 @@
 # NodeJs APIs (movie)
 This repo is added by [aran dekar](https://www.linkedin.com/in/arandeh/)
-This is a micro service to test the strategies by strategy owners, before they can promote it to live they need to backtest the strategies, create different revisions and when they are happy with the result (and if the result meets the mark for live trading) they can promote it to live.
+This is a micro service to test the strategies by strategy owners, before they can promote it to live they need to backtest the strategies, create different strategies and when they are happy with the result (and if the result meets the mark for live trading) they can promote it to live.
 
 ## Documentation
 OpenApi 2.0 (swagger). - validation and security

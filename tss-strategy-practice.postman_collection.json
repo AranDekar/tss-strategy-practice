@@ -1,76 +1,314 @@
 {
-	"info": {
-		"_postman_id": "bcd45b87-1fb4-4b91-9ef7-537f34807e7a",
-		"name": "Movies",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "http://localhost:3000/api/v1/movie/54f0be26ae8aba260b8f6db7",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic c3Bhcms6dGVzdGluZzE="
-					}
-				],
-				"body": {},
-				"url": "http://localhost:3000/api/v1/movie/54f0be26ae8aba260b8f6db7"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:3000/api/v1/movie",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic c3Bhcms6dGVzdGluZzE="
-					}
-				],
-				"body": {},
-				"url": "http://localhost:3000/api/v1/movie"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:3000/api/v1/movie/54f0be26ae8aba260b8f6db8",
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Basic c3Bhcms6dGVzdGluZzE="
-					}
-				],
-				"body": {},
-				"url": "http://localhost:3000/api/v1/movie/54f0be26ae8aba260b8f6db8"
-			},
-			"response": []
-		},
-		{
-			"name": "http://localhost:3000/api/v1/movie",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"value": "Basic c3Bhcms6dGVzdGluZzE="
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"id\":\"54f0be26ae8aba260b8f6db8\",\n    \"title\": \"The Shawshank Redemption\",\n    \"plot\": \"Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.\",\n    \"releaseDate\": \"1994-10-14\",\n    \"actors\": [            \"Tim Robbins\", \"Morgan Freeman\", \"Bob Gunton\", \"William Sadler\"        ],\n    \"duration\": 142,\n    \"poster\": \"https://images-na.ssl-images-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jp g\",\n    \"rating\": \"PG\"\n}"
-				},
-				"url": "http://localhost:3000/api/v1/movie"
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "32a6a61b-e594-4a05-9fbd-2e9ccf80f4a2",
+    "name": "tss-strategy-practice",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "strategies",
+      "item": [
+        {
+          "name": "Get all strategies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {},
+            "url": "http://localhost:3510/api/v1/strategies",
+            "description": "Returns a list of strategies of the strategy owner"
+          },
+          "response": []
+        },
+        {
+          "name": "Get all strategies By User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {},
+            "url": {
+              "raw": "http://localhost:3510/api/v1/strategies?postedBy=5b1f555491c055001d9d10ff",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3510",
+              "path": [
+                "api",
+                "v1",
+                "strategies"
+              ],
+              "query": [
+                {
+                  "key": "postedBy",
+                  "value": "5b1f555491c055001d9d10ff"
+                }
+              ]
+            },
+            "description": "Returns a list of strategies of the strategy owner"
+          },
+          "response": []
+        },
+        {
+          "name": "Get a Revision",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{revisionId}}\",\n  \"strategy\": \"{{strategyId}}\",\n  \"code\": \"samplecode\",\n  \"events\": [\n    \"h4_sma_changed\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3510/api/v1/strategies/:strategyId/revisions/:revisionId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3510",
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                ":strategyId",
+                "revisions",
+                ":revisionId"
+              ],
+              "variable": [
+                {
+                  "key": "strategyId",
+                  "value": "{{strategyId}}"
+                },
+                {
+                  "key": "revisionId",
+                  "value": "{{revisionId}}"
+                }
+              ]
+            },
+            "description": "updating an existing revision to the strategy a revision has a code to compile which is mostly being updated or maybe a new event to be added or removed"
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new Strategy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\n    \"isActive\": true,\n    \n    \"name\": \"sma\",\n    \"description\": \"sma in h4\",\n    \"postedBy\": \"5b1f555491c055001d9d10ff\",\n    \"createdTime\": \"2018-06-15T06:33:39.186Z\"\n  }"
+            },
+            "url": "http://localhost:3510/api/v1/strategies",
+            "description": "adds a new strategy owned by strategy owner"
+          },
+          "response": []
+        },
+        {
+          "name": "Create a new Revision",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"strategy\": \"5b235dc32a5bb3001dcb5650\",\n  \"code\": \"h4-sma-2.js\",\n  \"events\": [\n    \"h4_sma_changed\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3510/api/v1/strategies/:strategyId/revisions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3510",
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                ":strategyId",
+                "revisions"
+              ],
+              "variable": [
+                {
+                  "key": "strategyId",
+                  "value": "{{strategyId}}"
+                }
+              ]
+            },
+            "description": "adding a new revision to the strategy a new revision has a code to compile (the algorithm), will be given a new auto incremental number and has a list of events to listen to."
+          },
+          "response": []
+        },
+        {
+          "name": "Put a Revision",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{revisionId}}\",\n  \"strategy\": \"{{strategyId}}\",\n  \"code\": \"h4-sma.js\",\n  \"events\": [\n    \"h4_sma_changed\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3510/api/v1/strategies/:strategyId/revisions/:revisionId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3510",
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                ":strategyId",
+                "revisions",
+                ":revisionId"
+              ],
+              "variable": [
+                {
+                  "key": "strategyId",
+                  "value": "{{strategyId}}"
+                },
+                {
+                  "key": "revisionId",
+                  "value": "{{revisionId}}"
+                }
+              ]
+            },
+            "description": "updating an existing revision to the strategy a revision has a code to compile which is mostly being updated or maybe a new event to be added or removed"
+          },
+          "response": []
+        },
+        {
+          "name": "Run a backtest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/octet-stream"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{basicAuth}}"
+              }
+            ],
+            "body": {},
+            "url": {
+              "raw": "http://localhost:3510/api/v1/strategies/:strategyId/revisions/:revisionId/backtest",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3510",
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                ":strategyId",
+                "revisions",
+                ":revisionId",
+                "backtest"
+              ],
+              "variable": [
+                {
+                  "key": "strategyId",
+                  "value": "{{strategyId}}"
+                },
+                {
+                  "key": "revisionId",
+                  "value": "{{revisionId}}"
+                }
+              ]
+            },
+            "description": "starts backtesting a strategy revision"
+          },
+          "response": []
+        }
+      ],
+      "description": "Folder for strategies"
+    },
+    {
+      "name": "swagger",
+      "item": [],
+      "description": "Folder for swagger"
+    }
+  ]
 }

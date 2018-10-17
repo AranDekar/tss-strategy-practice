@@ -25,12 +25,17 @@ security:
   
 paths:
   /strategies:
-    x-swagger-router-controller: strategy_controller
+    x-swagger-router-controller: StrategyController
     get:
       tags: 
         - strategy
       summary: Get all strategies
       description: Returns a list of strategies of the strategy owner
+      parameters:
+        - name: postedBy
+          in: query
+          type: string
+          format: ObjectId
       produces:
         - application/json
       operationId: getStrategies
@@ -69,109 +74,97 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-            
-  /strategies/{strategyId}/revisions:
-    x-swagger-router-controller: strategy_revision_controller
-    post:
+                      
+  /strategies/{strategyId}:
+    x-swagger-router-controller: StrategyController
+    delete:
       tags: 
-        - strategy-revision
-      summary: Create a new Revision
-      description: adding a new revision to the strategy a new revision has a code to compile (the algorithm), will be given a new auto incremental number and has a list of events to listen to.
-      operationId: postRevision
+        - strategy
+      summary: Deletes a strategy
+      description: Deletes a strategy
+      operationId: deleteStrategy
       parameters:
         - name: strategyId
-          in: path
-          required: true
-          type: string
-        - name: revision
-          description: the new revision to post
-          in: body
-          required: true
-          schema: 
-            $ref: "#/definitions/StrategyRevision"
-      responses:
-        "201":
-          description: Success
-          schema:
-            $ref: "#/definitions/StrategyRevision"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
-  /strategies/{strategyId}/revisions/{revisionId}:
-    x-swagger-router-controller: strategy_revision_controller
-    get:
-      tags: 
-        - strategy-revision
-      summary: Get a Revision
-      description: Get an existing revision with details
-      operationId: getRevision
-      parameters:
-        - name: strategyId
-          in: path
-          type: string       
-          required: true
-        - name: revisionId
           in: path
           type: string
           required: true
       responses:
-        "200":
+        "204":
           description: Success
           schema:
-            $ref: "#/definitions/StrategyRevision"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
-    put:
-      tags: 
-        - strategy-revision
-      summary: Update a Revision
-      description: updating an existing revision to the strategy a revision has a code to compile which is mostly 
-        being updated or maybe a new event to be added or removed
-      operationId: putRevision
-      parameters:
-        - name: strategyId
-          in: path
-          type: string       
-          required: true
-        - name: revisionId
-          in: path
-          type: string
-          required: true
-        - name: revision
-          description: the revision to update
-          in: body
-          required: true
-          schema: 
-            $ref: "#/definitions/StrategyRevision"
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/StrategyRevision"
+            $ref: "#/definitions/Strategy"
+
         default:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
 
-  /strategies/{strategyId}/revisions/{revisionId}/backtest:
-    x-swagger-router-controller: strategy_revision_controller
-    post:
+  /strategies/{strategyId}/yearly_report:
+    x-swagger-router-controller: StrategyController
+    get:
       tags: 
-        - strategy-revision
-      summary: Run a backtest
-      description: starts backtesting a strategy revision
-      operationId: backtest
-      consumes:
-        - application/octet-stream
+        - strategy
+      summary: Get a report for a strategy
+      description: Get an existing report for a strategy
+      operationId: getYearlyReport
       parameters:
         - name: strategyId
           in: path
-          type: string       
+          type: string
           required: true
-        - name: revisionId
+      responses:
+        "200":
+          description: Success
+          schema: 
+            type: array
+            items:
+              $ref: "#/definitions/StrategyReportSummary"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /strategies/{instrument}/{strategyId}/monthly_report:
+    x-swagger-router-controller: StrategyController
+    get:
+      tags: 
+        - strategy
+      summary: Get a report for a Strategy
+      description: Get an existing report for a strategy
+      operationId: getMonthlyReport
+      parameters:
+        - name: strategyId
+          in: path
+          type: string
+          required: true
+        - name: instrument
+          in: path
+          type: string
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema: 
+            type: array
+            items:
+              $ref: "#/definitions/StrategyReportSummary"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /strategies/{strategyId}/backtest:
+    x-swagger-router-controller: StrategyController
+    post:
+      tags: 
+        - strategy
+      summary: Run a backtest
+      description: starts backtesting a strategy
+      operationId: backtest
+      consumes:
+        - application/json
+      parameters:
+        - name: strategyId
           in: path
           type: string
           required: true
@@ -180,6 +173,26 @@ paths:
           description: Success
           schema:
             $ref: "#/definitions/EventResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /events:
+    x-swagger-router-controller: StrategyController
+    get:
+      tags: 
+        - event
+      summary: Get all available events
+      description: Get all available events
+      operationId: getEvents
+      responses:
+        "200":
+          description: Success
+          schema: 
+            type: array
+            items:
+              $ref: "#/definitions/Event"
         default:
           description: Error
           schema:
@@ -194,69 +207,138 @@ definitions:
       - name
       - description
       - postedBy
-      - strategyRevisions
+      - code
+      - events
     properties:
       _id:
         type: string
         format: ObjectId
       isActive:
         type: boolean
-      strategyRevisions:
-        type: array
-        items: 
-          type: string
-          format: ObjectId
       name:
         type: string
       description:
         type: string
       postedBy:
         type: string
+        format: ObjectId
       createdTime:
         type: string
         format: datetime
-    example:  {
-        "isActive": true,
-        "strategyRevisions": [
-            "5b235fe813c672001d122e9b"
-        ],
-        "_id": "5b235dc32a5bb3001dcb5650",
-        "name": "sma",
-        "description": "sma testing in h4",
-        "postedBy": "5b1f555491c055001d9d10ff",
-        "createdTime": "2018-06-15T06:33:39.186Z"
-    }
-  StrategyRevision:
-    type: object
-    required:
-      - strategy
-      - code
-      - events
-    properties:
-      id:
-        type: string
-        format: ObjectId
-        description: the id of the strategyRevision
-      strategy:
-        type: string
-        format: ObjectId
-        description: this is the ref key to the parent strategy object the owner strategy
-      number:
-        type: number
-        description: this is the new number of the revision, this is not meant to be posted by the caller
       code:
         type: string
-        description: the algorithm of the strategy in new revision this is a moduel in javascript
+        description: the algorithm of the strategy in new strategy this is a moduel in javascript
       events:
         type: "array"
         items:
           type: string
-    example: {"id":"1","strategy":"1","number":null,"code":"module.exports=1","events":["h4_closed"]}
+    example:  {
+        "isActive": true,
+        "_id": "5b235dc32a5bb3001dcb5650",
+        "name": "sma",
+        "description": "sma testing in h4",
+        "postedBy": "5b1f555491c055001d9d10ff",
+        "createdTime": "2018-06-15T06:33:39.186Z",
+        "code":"module.exports=1",
+        "events":["h4_closed"]
+    }
+  StrategyReportSummary:
+    type: object
+    required:
+      - instrument
+      - total
+      - maxProfit
+      - maxLoss
+    properties:
+      instrument:
+        type: string
+      year:
+        type: number
+        description: this is the year of the report
+      total:
+        type: number
+        description: the algorithm of the strategy in new strategy this is a moduel in javascript
+      maxProfit:
+        type: number
+      maxLoss:
+        type: number
+      monthly:
+        type: array
+        items:
+          $ref: "#/definitions/MonthlyReport"
+      quarterly:
+        type: array
+        items:
+          $ref: "#/definitions/QuarterlyReport"
+      halfYearly:
+        type: array
+        items:
+          $ref: "#/definitions/HalfYearlyReport"
+  MonthlyReport:
+    type: object
+    required:
+      - total
+      - maxProfit
+      - maxLoss
+      - month
+    properties:
+      total:
+        type: number
+      maxProfit:
+        type: number
+      maxLoss: 
+        type: number
+      month: 
+        type: string      
+  QuarterlyReport:
+    type: object
+    required:
+      - total
+      - maxProfit
+      - maxLoss
+      - quarter
+    properties:
+      total:
+        type: number
+      maxProfit:
+        type: number
+      maxLoss: 
+        type: number
+      quarter: 
+        type: string      
+  HalfYearlyReport:
+    type: object
+    required:
+      - total
+      - maxProfit
+      - maxLoss
+      - halfYear
+    properties:
+      total:
+        type: number
+      maxProfit:
+        type: number
+      maxLoss: 
+        type: number
+      halfYear: 
+        type: string
   ErrorResponse:
     required:
       - message
     properties:
       message:
+        type: string
+  Event:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      howToUse:
+        type: string
+      payload:
+        type: string
+      example:
         type: string
   EventResponse:
     required:

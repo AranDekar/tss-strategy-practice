@@ -2,15 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import requireFromString from 'require-from-string';
 import request from 'request-promise';
-import StrategyEvent from '../schemas/strategy_event_schema';
-import StrategyRevision from '../schemas/strategy_revision_schema';
-import StrategyReport from '../schemas/strategy_report_schema';
-import StrategyReportSummary from '../schemas/strategy_report_summary_schema';
+import StrategyEvent from '../schemas/StrategyEvent';
+import Strategy from '../schemas/Strategy';
+import StrategyReport from '../schemas/StrategyReport';
+import StrategyReportSummary from '../schemas/StrategyReportSummary';
 
 class BacktestService {
-  constructor({ revisionId }) {
-    this.revisionId = revisionId;
-    this.revision = undefined;
+  constructor({ strategyId }) {
+    this.strategyId = strategyId;
+    this.strategy = undefined;
     this.events = [];
     this.reports = [];
     this.annualReps = [];
@@ -19,17 +19,17 @@ class BacktestService {
   }
 
   async backtest() {
-    this.revision = await StrategyRevision.findById(this.revisionId).populate('strategy').exec();
-    if (this.revision === null) {
-      throw new Error('revision not found!');
+    this.strategy = await Strategy.findById(this.strategyId).exec();
+    if (this.strategy === null) {
+      throw new Error('strategy not found!');
     }
     let numberOfEvents = 0;
     const summary = [];
-    const file = path.join(__dirname, `/pool/${this.revision.code}`);
+    const file = path.join(__dirname, `/pool/${this.strategy.code}`);
     const code = fs.readFileSync(file, 'utf8');
     const func = requireFromString(code, file);
     if (!func) {
-      throw new Error('code of the revision cannot be executed!');
+      throw new Error('code of the strategy cannot be executed!');
     }
     const instruments = { AUD_USD: 'AUD_USD', GBP_USD: 'GBP_USD', EUR_USD: 'EUR_USD' };
     for (const [value] of Object.entries(instruments)) {
@@ -46,7 +46,7 @@ class BacktestService {
       let candleTime = new Date('1900-01-01').toISOString();
       do {
         /* eslint-disable no-await-in-loop */
-        const events = await BacktestService.getInstrumentEvents(instrument, candleTime, this.revision.events.map(x => x));
+        const events = await BacktestService.getInstrumentEvents(instrument, candleTime, this.strategy.events.map(x => x));
         /* eslint-enable no-await-in-loop */
         for (const event of events) {
           await this.process(func, instrument, event);// eslint-disable-line no-await-in-loop
@@ -55,8 +55,8 @@ class BacktestService {
         }
         stillInLoop = events.length !== 0;
       } while (stillInLoop);
-      this.produceReport(this.revision, instrument);
-      const result = this.produceReportSummary(this.revision, instrument);
+      this.produceReport(this.strategy, instrument);
+      const result = this.produceReportSummary(this.strategy, instrument);
       summary.push(result);
       await this.saveIntoDb(); // eslint-disable-line
       numberOfEvents += this.events.length;
@@ -65,9 +65,9 @@ class BacktestService {
   }
 
   async clearOutDb(instr) {
-    await StrategyEvent.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
-    await StrategyReport.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
-    await StrategyReportSummary.deleteMany({ strategyRevision: this.revisionId, instrument: instr }).exec();
+    await StrategyEvent.deleteMany({ strategy: this.strategyId, instrument: instr }).exec();
+    await StrategyReport.deleteMany({ strategy: this.strategyId, instrument: instr }).exec();
+    await StrategyReportSummary.deleteMany({ strategy: this.strategyId, instrument: instr }).exec();
     const r = 'dsds';
     return r;
   }
@@ -78,7 +78,7 @@ class BacktestService {
     await StrategyReportSummary.insertMany(this.annualReps);
   }
 
-  produceReportSummary(strategyRevision, instrument) {
+  produceReportSummary(strategy, instrument) {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const activeReports = this.reports.filter(a => a.timeOut !== undefined && a.timeOut !== null);
     const minYear = activeReports[0].timeOut.getFullYear();
@@ -164,7 +164,7 @@ class BacktestService {
       };
 
       this.annualReps.push({
-        strategyRevision: strategyRevision.id,
+        strategy: strategy.id,
         instrument,
         year: m,
         total: annualTotal,
@@ -180,12 +180,12 @@ class BacktestService {
     return { totalEarn, instrument, yearlyReport };
   }
 
-  produceReport(strategyRevision, instrumnet) {
+  produceReport(strategy, instrumnet) {
     let report;
     for (const event of this.events) {
       if (['in_buy', 'in_sell'].indexOf(event.event) > -1) {
         report = {
-          strategyRevision: strategyRevision.id,
+          strategy: strategy.id,
           instrument: instrumnet,
           timeIn: new Date(event.candleTime),
           payload: event.payload,
@@ -251,7 +251,7 @@ class BacktestService {
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: this.revisionId,
+        strategy: this.strategyId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'in_sell';
@@ -273,7 +273,7 @@ class BacktestService {
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: this.revisionId,
+        strategy: this.strategyId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'in_buy';
@@ -294,7 +294,7 @@ class BacktestService {
         },
         candleTime: instrumentEvent.candleTime,
         time: new Date(),
-        strategyRevision: this.revisionId,
+        strategy: this.strategyId,
       };
       this.events.push(eventItem);
       this.strategyStatus = 'exited';

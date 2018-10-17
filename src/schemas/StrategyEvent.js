@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 const strategyEventSchema = new Schema({
-  strategyRevision: { type: Schema.Types.ObjectId, ref: 'strategy_revisions' },
+  strategy: { type: Schema.Types.ObjectId, ref: 'strategies' },
   instrument: { type: String, required: 'instrumentId is required' },
   isDispatched: { type: Boolean, default: false },
   candleTime: { type: Date },

@@ -1,9 +1,14 @@
 import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
-const strategyRevisionSchema = new Schema({
-  strategy: { type: Schema.Types.ObjectId, ref: 'strategies' },
-  modifiedTime: { type: Date, default: Date.now },
+
+const strategySchema = new Schema({
+  name: { type: String, trim: true, required: 'name is required' },
+  description: { type: String, trim: true, required: 'name is required' },
+  createdTime: { type: Date, default: Date.now },
+  isActive: { type: Boolean, default: true },
+  postedBy: { type: Schema.Types.ObjectId, required: 'postedBy is required' },
+
   code: String,
   events: {
     type: [String],
@@ -64,5 +69,5 @@ const strategyRevisionSchema = new Schema({
   },
 });
 
-const StrategyRevision = mongoose.model('strategy_revisions', strategyRevisionSchema);
-export default StrategyRevision;
+const Strategy = mongoose.model('strategies', strategySchema);
+export default Strategy;

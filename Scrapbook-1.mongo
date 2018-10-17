@@ -34,3 +34,10 @@ db.strategy_reports.aggregate([
   }
   
 }])
+
+db.strategies.remove({"_id": {
+      "$oid": "5b6928a95f3daa345261725b"
+    }})
+
+db.strategies.find()
+

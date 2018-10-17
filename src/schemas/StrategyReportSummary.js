@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 const strategyReportSummarySchema = new Schema({
-  strategyRevision: { type: Schema.Types.ObjectId, ref: 'strategy_revisions' },
+  strategy: { type: Schema.Types.ObjectId, ref: 'strategies' },
   instrument: { type: String, required: 'instrumentId is required' },
   total: Number,
   maxProfit: Number,
