@@ -90,10 +90,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
-          schema:
-            $ref: "#/definitions/Strategy"
-
+          description: Successfully deleted
         default:
           description: Error
           schema:

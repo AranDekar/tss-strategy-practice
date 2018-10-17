@@ -1,7 +1,6 @@
-
-import StrategyService from '../services/StrategyService';
-import BacktestService from '../services/BacktestService';
-import Strategy from '../schemas/Strategy';
+import StrategyService from "../services/StrategyService";
+import BacktestService from "../services/BacktestService";
+import Strategy from "../schemas/Strategy";
 
 export async function getStrategies(req, res) {
   try {
@@ -18,8 +17,11 @@ export async function deleteStrategy(req, res) {
   try {
     const strategyId = req.swagger.params.strategyId.value;
 
-    const data = await StrategyService.delete(strategyId);
-    return res.status(201).json(data);
+    const model = await StrategyService.delete(strategyId);
+    if (!model) {
+      return res.status(404).send("startegy not found!");
+    }
+    return res.status(204).send();
   } catch (err) {
     return res.status(400).send({ message: err.message });
   }
@@ -77,7 +79,7 @@ export async function backtest(req, res) {
 }
 export async function getEvents(req, res) {
   try {
-    let collection = Strategy.schema.path('events').options.enum;
+    let collection = Strategy.schema.path("events").options.enum;
     collection = collection.sort();
     const result = collection.map(x => ({ name: x }));
     return res.status(200).send(result);
